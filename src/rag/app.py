@@ -53,6 +53,7 @@ if prompt := st.chat_input(placeholder="What's up"):
 
     utils.format_and_print_user_input(prompt)
     response = agent(prompt)
+    utils.print_log(response)
 
     # Display assistant response in chat message container
     with st.chat_message("assistant"):
@@ -77,6 +78,7 @@ if prompt := st.chat_input(placeholder="What's up"):
         else:
             utils.print_log("Received stream response")
             for chunk in response:
+                chunk = chunk[0]
                 if isinstance(chunk, str):
                     full_response += chunk
                     time.sleep(0.05)

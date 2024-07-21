@@ -19,10 +19,14 @@ import pandas as pd
 from tabulate import tabulate
 import utils
 import vector_search
+import openai
+from openai import OpenAI
+
 
 os.environ["OPENAI_API_KEY"] = params.OPENAI_API_KEY
 os.environ["OPENAI_API_VERSION"] = params.OPENAI_API_VERSION
 os.environ["OPENAI_API_TYPE"] = params.OPENAI_TYPE
+#os.environ["OPENAI_API_ORG"] = params.OPENAI_ORG
 
 MONGODB_URI = params.MONGODB_URI
 DATABASE_NAME = params.DATABASE_NAME
@@ -128,7 +132,7 @@ class UserProxyAgent:
             add_start_index=True,
         )
         self.gpt4all_embd = GPT4AllEmbeddings()
-        self.client = pymongo.MongoClient(MONGODB_URI)
+        self.client = pymongo.MongoClient(MONGODB_URI, server_api=pymongo.server_api.ServerApi('1'))
         self.db = self.client[DATABASE_NAME]
         self.collection = self.db[COLLECTION_NAME]
         self.vectorstore = MongoDBAtlasVectorSearch(self.collection, self.gpt4all_embd)
@@ -137,14 +141,21 @@ class UserProxyAgent:
         )
 
         # OpenAI init
+        #from actionweaver.llms import wrap
+        from openai import OpenAI
+        #self.openai_client = wrap(OpenAI(api_key=params.OPENAI_API_KEY, organization=params.OPENAI_ORG))
+        self.openai_client = OpenAI(api_key=params.OPENAI_API_KEY, organization=params.OPENAI_ORG)
+
         self.token_tracker = TokenUsageTracker(budget=None, logger=logger)
         if params.OPENAI_TYPE != "azure":
+            print('teste!')
             self.llm = OpenAIChatCompletion(
                 model="gpt-3.5-turbo",
                 # model="gpt-4",
                 token_usage_tracker=self.token_tracker,
                 logger=logger,
             )
+            self.llm.client = self.openai_client
         else:
             self.llm = ChatCompletion(
                 model="gpt-3.5-turbo",
@@ -153,6 +164,7 @@ class UserProxyAgent:
                 azure_endpoint=params.OPENAI_AZURE_ENDPOINT,
                 api_key=params.OPENAI_API_KEY,
                 api_version=params.OPENAI_API_VERSION,
+                #organization=params.OPENAI_ORG,
                 token_usage_tracker=self.token_tracker,
                 logger=logger,
             )
