@@ -6,12 +6,17 @@ from langchain_community.embeddings import OpenAIEmbeddings
 from pymongo import MongoClient
 import os
 
+from dotenv import load_dotenv
+
+load_dotenv()
+
 logging.basicConfig(level=logging.DEBUG)
 
 # MongoDB setup
 mongodb_uri = os.environ.get('MONGODB_URI')
+
 client = MongoClient(mongodb_uri)
-db = client.get_database()
+db = client["teste-rag"]
 
 def process_website(url):
     logging.info(f"Processing website: {url}")
