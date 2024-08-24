@@ -3,6 +3,7 @@ secrets.txt
 env/*
 __pycache__/*
 src/rag/__pycache__/*
+src/rag/__pycache__/*
 .env
 testing_openai_key.ipynb
 *.log
