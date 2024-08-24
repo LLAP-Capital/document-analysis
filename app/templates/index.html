@@ -1,0 +1,66 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<h1>RAG Web App</h1>
+<div class="row">
+    <div class="col-md-6">
+        <h2>Add Website</h2>
+        <form id="add-website-form">
+            <div class="mb-3">
+                <input type="url" class="form-control" id="website-url" placeholder="Enter website URL" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Add Website</button>
+        </form>
+        <div id="add-website-result" class="mt-3"></div>
+    </div>
+    <div class="col-md-6">
+        <h2>Query RAG</h2>
+        <form id="query-form">
+            <div class="mb-3">
+                <input type="text" class="form-control" id="query-text" placeholder="Enter your query" required>
+            </div>
+            <button type="submit" class="btn btn-primary">Query</button>
+        </form>
+        <div id="query-result" class="mt-3"></div>
+    </div>
+</div>
+{% endblock %}
+
+{% block scripts %}
+<script>
+$(document).ready(function() {
+    $('#add-website-form').submit(function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: '/add_website',
+            method: 'POST',
+            data: { url: $('#website-url').val() },
+            success: function(response) {
+                $('#add-website-result').text(response.message);
+            },
+            error: function(xhr) {
+                $('#add-website-result').text('Error: ' + xhr.responseJSON.error);
+            }
+        });
+    });
+
+    $('#query-form').submit(function(e) {
+        e.preventDefault();
+        $.ajax({
+            url: '/query',
+            method: 'POST',
+            data: { query: $('#query-text').val() },
+            success: function(response) {
+                $('#query-result').html('<h3>Results:</h3><ul>' + 
+                    response.results.map(result => '<li>' + result + '</li>').join('') + 
+                    '</ul>');
+            },
+            error: function(xhr) {
+                $('#query-result').text('Error: ' + xhr.responseJSON.error);
+            }
+        });
+    });
+});
+</script>
+{% endblock %}
