@@ -1,9 +1,8 @@
-
 import requests
 from bs4 import BeautifulSoup
 from langchain.text_splitter import RecursiveCharacterTextSplitter
 from langchain.embeddings import OpenAIEmbeddings
-from langchain.vectorstores import MongoDBAtlasVectorSearch
+from langchain_community.vectorstores import MongoDBAtlasVectorSearch
 from app import db
 from app.models import Website
 
