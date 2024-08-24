@@ -3,3 +3,4 @@ secrets.txt
 env/*
 __pycache__/*
 src/rag/__pycache__/*
+.env
