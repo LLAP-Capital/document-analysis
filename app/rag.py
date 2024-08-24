@@ -1,33 +1,62 @@
-import requests
-from bs4 import BeautifulSoup
+import logging
+from langchain_community.document_loaders import WebBaseLoader
 from langchain.text_splitter import RecursiveCharacterTextSplitter
-from langchain.embeddings import OpenAIEmbeddings
 from langchain_community.vectorstores import MongoDBAtlasVectorSearch
-from app import db
-from app.models import Website
+from langchain_community.embeddings import OpenAIEmbeddings
+from pymongo import MongoClient
+import os
 
-def scrape_website(url):
-    response = requests.get(url)
-    soup = BeautifulSoup(response.text, 'html.parser')
-    return soup.get_text()
+logging.basicConfig(level=logging.DEBUG)
+
+# MongoDB setup
+mongodb_uri = os.environ.get('MONGODB_URI')
+client = MongoClient(mongodb_uri)
+db = client.get_database()
 
 def process_website(url):
-    content = scrape_website(url)
-    Website.add_website(url, content)
-    
-    text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
-    texts = text_splitter.split_text(content)
-    
-    embeddings = OpenAIEmbeddings()
-    vector_store = MongoDBAtlasVectorSearch.from_texts(
-        texts,
-        embeddings,
-        collection=db.vector_store
-    )
-    return "Website processed and added to RAG database."
+    logging.info(f"Processing website: {url}")
+    try:
+        # Load the web page
+        loader = WebBaseLoader(url)
+        logging.debug("WebBaseLoader created")
+        
+        data = loader.load()
+        logging.debug(f"Data loaded: {data[:100]}...")  # Log the first 100 characters
+        
+        # Split the text into chunks
+        text_splitter = RecursiveCharacterTextSplitter(chunk_size=1000, chunk_overlap=200)
+        logging.debug("Text splitter created")
+        
+        docs = text_splitter.split_documents(data)
+        logging.debug(f"Documents split: {len(docs)} chunks created")
+        
+        # Create embeddings and store in MongoDB
+        embeddings = OpenAIEmbeddings()
+        logging.debug("OpenAIEmbeddings created")
+        
+        vector_store = MongoDBAtlasVectorSearch.from_documents(
+            docs,
+            embeddings,
+            collection=db.your_collection_name,
+            index_name="your_index_name"
+        )
+        logging.debug("Vector store created and documents stored")
+        
+        return {"success": True, "message": "Website processed successfully"}
+    except Exception as e:
+        logging.error(f"Error processing website: {str(e)}", exc_info=True)
+        raise
 
 def query_rag(query):
-    embeddings = OpenAIEmbeddings()
-    vector_store = MongoDBAtlasVectorSearch(db.vector_store, embeddings)
-    results = vector_store.similarity_search(query, k=3)
-    return results
+    try:
+        embeddings = OpenAIEmbeddings()
+        vector_store = MongoDBAtlasVectorSearch(
+            db.your_collection_name,
+            embeddings,
+            index_name="your_index_name"
+        )
+        results = vector_store.similarity_search(query)
+        return [result.page_content for result in results]
+    except Exception as e:
+        logging.error(f"Error querying RAG: {str(e)}", exc_info=True)
+        raise
