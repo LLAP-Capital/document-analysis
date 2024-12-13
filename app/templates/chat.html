@@ -1,0 +1,46 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<div class="chat-container">
+    <div id="chat-messages"></div>
+    <form id="chat-form">
+        <input type="text" id="user-input" placeholder="Ask a question...">
+        <button type="submit">Send</button>
+    </form>
+</div>
+
+<script>
+document.getElementById('chat-form').addEventListener('submit', function(e) {
+    e.preventDefault();
+    var userInput = document.getElementById('user-input');
+    var query = userInput.value;
+    userInput.value = '';
+
+    // Add user message to chat
+    addMessageToChat('You: ' + query);
+
+    // Send query to server
+    fetch('/chat', {
+        method: 'POST',
+        headers: {
+            'Content-Type': 'application/json',
+        },
+        body: JSON.stringify({query: query}),
+    })
+    .then(response => response.json())
+    .then(data => {
+        // Add AI response to chat
+        addMessageToChat('AI: ' + data.response);
+    });
+});
+
+function addMessageToChat(message) {
+    var chatMessages = document.getElementById('chat-messages');
+    var messageElement = document.createElement('p');
+    messageElement.textContent = message;
+    chatMessages.appendChild(messageElement);
+    chatMessages.scrollTop = chatMessages.scrollHeight;
+}
+</script>
+{% endblock %}
