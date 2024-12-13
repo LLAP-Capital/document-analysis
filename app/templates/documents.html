@@ -1,0 +1,15 @@
+
+{% extends "base.html" %}
+
+{% block content %}
+<h1>Processed Documents</h1>
+<ul class="list-group">
+{% for doc in documents %}
+    <li class="list-group-item">
+        <h5>{{ doc.title }}</h5>
+        <p>URL: {{ doc.url }}</p>
+        <p>Processed on: {{ doc.processed_date }}</p>
+    </li>
+{% endfor %}
+</ul>
+{% endblock %}
