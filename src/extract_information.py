@@ -7,6 +7,8 @@ import gradio as gr
 from dotenv import load_dotenv
 import os
 import logging
+from functools import lru_cache
+from time import sleep
 
 # Configure logging first, before any other operations
 logging.basicConfig(
@@ -89,6 +91,12 @@ def query_data(query):
         logger.error(f"Error processing query: {str(e)}", exc_info=True)
         return f"Error: {str(e)}", f"Error: {str(e)}"
 
+@lru_cache(maxsize=1000)
+def query_data_with_cache(query: str):
+    # Add rate limiting
+    sleep(0.1)  # Ensure we don't exceed API limits
+    return query_data(query)
+
 # Create Gradio interface
 with gr.Blocks(title="LAP RAG Test") as demo:
     gr.Markdown(
@@ -102,7 +110,7 @@ with gr.Blocks(title="LAP RAG Test") as demo:
         output1 = gr.Textbox(lines=1, max_lines=10, label="just Atlas Vector Search (returns text field as is):")
         output2 = gr.Textbox(lines=1, max_lines=10, label="Atlas Vector Search to Langchain's RetrieverQA + OpenAI LLM:")
 
-    button.click(query_data, textbox, outputs=[output1, output2])
+    button.click(query_data_with_cache, textbox, outputs=[output1, output2])
 
 logger.info("Starting Gradio interface")
 demo.launch()
