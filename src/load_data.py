@@ -17,10 +17,10 @@ collection = client[dbName][collectionName]
 
 # Replace the DirectoryLoader with individual TextLoader
 documents = []
-for filename in os.listdir('./data/'):
+for filename in os.listdir('../data/'):
     if filename.endswith('.txt'):
         try:
-            loader = TextLoader(f'./data/{filename}', encoding='utf-8')
+            loader = TextLoader(f'../data/{filename}', encoding='utf-8')
             documents.extend(loader.load())
         except Exception as e:
             print(f"Error loading file {filename}: {str(e)}")
