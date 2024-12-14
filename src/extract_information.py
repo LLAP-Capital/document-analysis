@@ -49,7 +49,7 @@ except Exception as e:
 # Initialize the Vector Store
 try:
     vectorStore = MongoDBAtlasVectorSearch.from_connection_string(
-        connection_string=os.getenv("MONGO_URI"),
+        connection_string=os.getenv("MONGODB_URI"),
         namespace=f"{dbName}.{collectionName}",
         embedding=embeddings,
         index_name="default"  # Make sure this matches your Atlas Search index name
