@@ -26,7 +26,7 @@ load_dotenv()
 
 # Connect to MongoDB
 try:
-    client = MongoClient(os.getenv("MONGO_URI"))
+    client = MongoClient(os.getenv("MONGODB_URI"))
     dbName = os.getenv("DATABASE_NAME")
     collectionName = os.getenv("COLLECTION_NAME")
     collection = client[dbName][collectionName]

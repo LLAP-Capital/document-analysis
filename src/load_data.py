@@ -10,7 +10,7 @@ import os
 load_dotenv()
 
 # Set the MongoDB URI, DB, Collection Names
-client = MongoClient(os.getenv("MONGO_URI"))
+client = MongoClient(os.getenv("MONGODB_URI"))
 dbName = os.getenv("DATABASE_NAME")
 collectionName = os.getenv("COLLECTION_NAME")
 collection = client[dbName][collectionName]

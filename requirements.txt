@@ -13,4 +13,5 @@ langchain-community
 scipy
 nltk
 langchain-mongodb
+langchain-openai
 
