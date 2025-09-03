@@ -8,3 +8,4 @@ testing_openai_key.ipynb
 *.log
 params.py
 app/__pycache__/*
+*.log
